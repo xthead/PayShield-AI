@@ -29,7 +29,9 @@
    3. Keep the app in Sandbox while testing. A production integration needs a trusted backend
       to create/capture orders, verify webhooks, enforce risk policy and protect credentials.
 */
-const PAYPAL_CLIENT_ID = ''; // Configure a Sandbox client ID to enable PayPal buttons.
+const PAYPAL_CLIENT_ID =AdoVwIeWmUQEuPbl-zpUy...''; // Configure a Sandbox client ID to enable PayPal buttons.
+const BACKEND_URL = 
+'https://payshield-ai-paypal-backend.onrender.com';
 const $ = id => document.getElementById(id);
 let stats={checks:0,flagged:0,reviewed:0}, lastAssessment=null, recent=[];
 function assess(raw){
@@ -57,6 +59,98 @@ function addRecent(a){recent.unshift({band:a.band,score:a.score,time:new Date().
 $('scanBtn').addEventListener('click',()=>{const raw=$('scanInput').value;if(!raw.trim()){$('scanInput').focus();return;}const a=assess(raw);renderAssessment(a);updateStats(a);addRecent(a);});
 $('clearBtn').addEventListener('click',()=>{$('scanInput').value='';$('result').classList.remove('show');lastAssessment=null;$('payBtn').disabled=true;$('payBtn').textContent='Analyze first to unlock demo checkout';$('paypalButtons').innerHTML='';});
 document.querySelectorAll('[data-example]').forEach(b=>b.addEventListener('click',()=>{$('scanInput').value=b.dataset.example;$('scanBtn').click();}));
-$('payBtn').addEventListener('click',()=>{if(!lastAssessment)return;$('paypalButtons').innerHTML='';if(!PAYPAL_CLIENT_ID){$('payNotice').textContent='Checkout unavailable: add a PayPal Sandbox client ID to PAYPAL_CLIENT_ID in this file. No payment has been initiated.';return;}if(!window.paypal){$('payNotice').textContent='PayPal SDK is not loaded. Check the client ID and network connection.';return;}if(lastAssessment.score>=60){$('payNotice').textContent='Checkout remains blocked by the demo risk policy. Verify the request through an independent channel.';return;}$('payNotice').textContent='Sandbox checkout is available for demonstration. This browser-only prototype is not suitable for real transactions.';window.paypal.Buttons({createOrder:(data,actions)=>{const amount=Number($('amount').value);if(!Number.isFinite(amount)||amount<1||amount>500)throw new Error('Enter a test amount between $1 and $500.');return actions.order.create({purchase_units:[{amount:{currency_code:'USD',value:amount.toFixed(2)}}]});},onApprove:(data,actions)=>actions.order.capture().then(()=>{$('payNotice').textContent='Sandbox payment captured for demo. No production payment was made.';}) ,onError:()=>{$('payNotice').textContent='Sandbox checkout failed. No successful payment was confirmed.';}}).render('#paypalButtons');});
+$('payBtn').addEventListener('click', async () => {
+  if (!lastAssessment) return;
+
+  $('paypalButtons').innerHTML = '';
+
+  if (!PAYPAL_CLIENT_ID || !BACKEND_URL) {
+    $('payNotice').textContent =
+      'PayPal Sandbox configuration is missing.';
+    return;
+  }
+
+  if (!window.paypal) {
+    $('payNotice').textContent =
+      'PayPal SDK is not loaded. Please check your Client ID.';
+    return;
+  }
+
+  if (lastAssessment.score >= 60) {
+    $('payNotice').textContent =
+      'Checkout blocked by the demo risk policy.';
+    return;
+  }
+
+  $('payNotice').textContent =
+    'Loading secure PayPal Sandbox checkout...';
+
+  try {
+    await window.paypal.Buttons({
+      createOrder: async () => {
+        const response = await fetch(
+          `${BACKEND_URL}/api/orders`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok || !result.id) {
+          throw new Error('Could not create PayPal order.');
+        }
+
+        return result.id;
+      },
+
+      onApprove: async (data) => {
+        $('payNotice').textContent =
+          'Verifying Sandbox payment...';
+
+        const response = await fetch(
+          `${BACKEND_URL}/api/orders/${encodeURIComponent(data.orderID)}/capture`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok || result.status !== 'COMPLETED') {
+          throw new Error('Payment verification failed.');
+        }
+
+        $('payNotice').textContent =
+          'Payment successfully captured and verified in PayPal Sandbox!';
+      },
+
+      onCancel: () => {
+        $('payNotice').textContent =
+          'Payment cancelled. No successful payment was confirmed.';
+      },
+
+      onError: (error) => {
+        console.error('PayPal error:', error);
+
+        $('payNotice').textContent =
+          'Checkout failed. Please try again.';
+      }
+    }).render('#paypalButtons');
+
+    $('payNotice').textContent =
+      'PayPal Sandbox checkout is ready.';
+  } catch (error) {
+    console.error(error);
+    $('payNotice').textContent =
+      'Unable to start checkout. Please try again.';
+  }
+});
 if(PAYPAL_CLIENT_ID){const s=document.createElement('script');s.src='https://www.paypal.com/sdk/js?client-id='+encodeURIComponent(PAYPAL_CLIENT_ID)+'&currency=USD&intent=capture';s.onload=()=>{$('payNotice').textContent='PayPal SDK loaded. Sandbox configuration must be verified before testing.';};s.onerror=()=>$('payNotice').textContent='Could not load PayPal SDK. Verify the Sandbox client ID.';document.head.appendChild(s);}
 </script></body></html>
