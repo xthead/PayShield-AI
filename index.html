@@ -63,6 +63,25 @@
       <strong id="analyticsLow">0</strong>
     </div>
   </div>
+ 
+<div style="margin-top:20px">
+  <h3>Risk Distribution</h3>
+
+  <p style="margin-bottom:6px">🔴 High Risk</p>
+  <div style="background:#26344b;border-radius:8px;height:12px;overflow:hidden">
+    <div id="highBar" style="height:12px;width:0%;background:#ef4444"></div>
+  </div>
+
+  <p style="margin:12px 0 6px">🟠 Medium Risk</p>
+  <div style="background:#26344b;border-radius:8px;height:12px;overflow:hidden">
+    <div id="mediumBar" style="height:12px;width:0%;background:#f59e0b"></div>
+  </div>
+
+  <p style="margin:12px 0 6px">🟢 Low Risk</p>
+  <div style="background:#26344b;border-radius:8px;height:12px;overflow:hidden">
+    <div id="lowBar" style="height:12px;width:0%;background:#22c55e"></div>
+  </div>
+</div>
 </section>
 
 <section class="card"><h2>PayPal checkout demo</h2><p class="sub">A separate checkout flow — only enable it after configuring a PayPal Sandbox app.</p><div class="paybox"><label class="fieldlabel" for="amount" style="margin-top:0">TEST PAYMENT AMOUNT (USD)</label><input id="amount" type="number" min="1" max="500" step="0.01" value="5.00"><p>Checkout stays locked until you run an analysis and review the result. A low heuristic score is not a guarantee of safety.</p><button class="btn secondary" id="payBtn" disabled>Analyze first to unlock demo checkout</button><div id="paypalButtons" style="margin-top:12px"></div><div class="notice" id="payNotice">PayPal SDK is not configured. Add your Sandbox client ID in the setup section of this file to test checkout. Never put a secret key in browser code.</div></div></section>
@@ -137,6 +156,7 @@ function renderAssessment(a) {
 
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
+
 function updateStats(a) {
   stats.checks++;
 
@@ -145,6 +165,31 @@ function updateStats(a) {
   } else if (a.score >= 30) {
     stats.reviewed++;
   }
+
+  $('checks').textContent = stats.checks;
+  $('flagged').textContent = stats.flagged;
+  $('reviewed').textContent = stats.reviewed;
+
+  // Update analytics counters
+  const lowRisk = stats.checks - stats.flagged - stats.reviewed;
+
+  $('analyticsTotal').textContent = stats.checks;
+  $('analyticsHigh').textContent = stats.flagged;
+  $('analyticsMedium').textContent = stats.reviewed;
+  $('analyticsLow').textContent = lowRisk;
+
+  // Update risk distribution bars
+  const total = stats.checks;
+
+  $('highBar').style.width =
+    (stats.flagged / total * 100) + '%';
+
+  $('mediumBar').style.width =
+    (stats.reviewed / total * 100) + '%';
+
+  $('lowBar').style.width =
+    (lowRisk / total * 100) + '%';
+}
 
   $('checks').textContent = stats.checks;
   $('flagged').textContent = stats.flagged;
