@@ -249,7 +249,13 @@ function inspectPayShieldURL() {
     status = "SUSPICIOUS";
     color = "#f59e0b";
   }
-
+window.payShieldURLReport = {
+  status,
+  risk,
+  host,
+  warnings: [...warnings],
+  checkedAt: new Date().toLocaleString()
+};
   result.innerHTML = `
     <div style="padding:16px;border:1px solid ${color};border-radius:12px;">
       <h3 style="color:${color};">${status}</h3>
