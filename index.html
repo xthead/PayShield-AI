@@ -40,6 +40,31 @@
 <div class="how"><div class="step"><b>01 · Inspect</b><p>Look for urgency, impersonation and suspicious links.</p></div><div class="step"><b>02 · Explain</b><p>Show the evidence behind each warning.</p></div><div class="step"><b>03 · Decide</b><p>Verify independently before sending money.</p></div></div>
 </section>
 <aside class="side"><section class="card"><h2>Protection overview</h2><p class="sub">Live counters are intentionally not fabricated in this demo.</p><div class="metricgrid"><div class="metric"><strong id="checks">0</strong><span>Checks this session</span></div><div class="metric"><strong id="flagged">0</strong><span>High-risk flags</span></div><div class="metric"><strong id="reviewed">0</strong><span>Needs review</span></div><div class="metric"><strong>0</strong><span>Messages stored</span></div></div></section>
+ 
+<section class="card" id="analyticsDashboard">
+  <h2>📊 Security Analytics Dashboard</h2>
+  <p class="sub">Overview of your PayShield AI security checks.</p>
+
+  <div class="stats">
+    <div class="stat">
+      <span>Total Checks</span>
+      <strong id="analyticsTotal">0</strong>
+    </div>
+    <div class="stat">
+      <span>High Risk</span>
+      <strong id="analyticsHigh">0</strong>
+    </div>
+    <div class="stat">
+      <span>Medium Risk</span>
+      <strong id="analyticsMedium">0</strong>
+    </div>
+    <div class="stat">
+      <span>Low Risk</span>
+      <strong id="analyticsLow">0</strong>
+    </div>
+  </div>
+</section>
+
 <section class="card"><h2>PayPal checkout demo</h2><p class="sub">A separate checkout flow — only enable it after configuring a PayPal Sandbox app.</p><div class="paybox"><label class="fieldlabel" for="amount" style="margin-top:0">TEST PAYMENT AMOUNT (USD)</label><input id="amount" type="number" min="1" max="500" step="0.01" value="5.00"><p>Checkout stays locked until you run an analysis and review the result. A low heuristic score is not a guarantee of safety.</p><button class="btn secondary" id="payBtn" disabled>Analyze first to unlock demo checkout</button><div id="paypalButtons" style="margin-top:12px"></div><div class="notice" id="payNotice">PayPal SDK is not configured. Add your Sandbox client ID in the setup section of this file to test checkout. Never put a secret key in browser code.</div></div></section>
 <section class="card"><h2>Recent checks</h2><p class="sub">Only this browser session. Nothing is sent to a server.</p><div class="activity" id="activity"><div class="sub">No checks yet. Try one of the examples.</div></div></section></aside></div>
 <footer class="footer">PayShield is an independent hackathon prototype, not an official PayPal product or security service. Do not rely on this demo to authorize real payments.</footer>
@@ -111,7 +136,28 @@ function renderAssessment(a) {
 }
 
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function updateStats(a){stats.checks++;if(a.score>=60)stats.flagged++;else if(a.score>=30)stats.reviewed++;$('checks').textContent=stats.checks;$('flagged').textContent=stats.flagged;$('reviewed').textContent=stats.reviewed;}
+
+function updateStats(a) {
+  stats.checks++;
+
+  if (a.score >= 60) {
+    stats.flagged++;
+  } else if (a.score >= 30) {
+    stats.reviewed++;
+  }
+
+  $('checks').textContent = stats.checks;
+  $('flagged').textContent = stats.flagged;
+  $('reviewed').textContent = stats.reviewed;
+
+  // Update Security Analytics Dashboard
+  $('analyticsTotal').textContent = stats.checks;
+  $('analyticsHigh').textContent = stats.flagged;
+  $('analyticsMedium').textContent = stats.reviewed;
+  $('analyticsLow').textContent =
+    stats.checks - stats.flagged - stats.reviewed;
+}
+
 function addRecent(a){recent.unshift({band:a.band,score:a.score,time:new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})});recent=recent.slice(0,4);$('activity').innerHTML=recent.map(x=>`<div class="activityitem"><div><b>${x.band}</b><small>Risk score ${x.score}/100 · ${x.time}</small></div><span class="pill ${x.score>=60?'danger':x.score>=30?'warn':'safe'}">${x.score>=60?'FLAGGED':x.score>=30?'REVIEW':'LOW'}</span></div>`).join('');}
 $('scanBtn').addEventListener('click',()=>{const raw=$('scanInput').value;if(!raw.trim()){$('scanInput').focus();return;}const a=assess(raw);renderAssessment(a);updateStats(a);addRecent(a);});
 $('clearBtn').addEventListener('click',()=>{$('scanInput').value='';$('result').classList.remove('show');lastAssessment=null;$('payBtn').disabled=true;$('payBtn').textContent='Analyze first to unlock demo checkout';$('paypalButtons').innerHTML='';});
