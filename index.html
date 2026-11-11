@@ -9,8 +9,29 @@
 @media(max-width:780px){.layout{grid-template-columns:1fr}.hero{display:block}.tag{display:inline-block;margin-top:16px}.shell{padding:20px 14px 40px}}@media(max-width:440px){.row{flex-direction:column}.row .btn{width:100%}.how{grid-template-columns:1fr}.top{align-items:flex-start}}
 </style></head>
 <body><main class="shell">
-<header class="top"><div class="brand"><div class="logo">🛡</div><div><strong>PayShield</strong><small>Trust before you pay</small></div></div><div class="status">● DEMO PROTOTYPE · LOCAL ANALYSIS</div></header>
-<section class="hero"><div><div class="eyebrow">Payment safety intelligence</div><h1>Pause. Verify.<br>Then pay with confidence.</h1><p>Check suspicious payment messages and links before you act. PayShield explains the warning signs so people can make safer payment decisions.</p></div><div class="tag">Built for the PayPal Hackathon</div></section>
+
+<header class="top">
+  <div class="brand">
+    <div class="logo">🛡</div>
+    <div><strong>PayShield</strong><small>Trust before you pay</small></div>
+  </div>
+  <div class="status">● DEMO PROTOTYPE · LOCAL ANALYSIS</div>
+</header>
+
+<div class="language-selector" style="display:flex;align-items:center;gap:12px;margin:15px 0;">
+  <label for="languageSelect" style="color:#edf2ff;font-weight:bold;">🌐 Language:</label>
+  <select id="languageSelect" style="padding:10px;border-radius:8px;background:#101a2d;color:white;border:1px solid #33445f;">
+    <option value="en">English</option>
+    <option value="hi">हिन्दी (Hindi)</option>
+    <option value="ta">தமிழ் (Tamil)</option>
+    <option value="te">తెలుగు (Telugu)</option>
+    <option value="kn">ಕನ್ನಡ (Kannada)</option>
+  </select>
+</div>
+
+<section class="hero">
+
+ <div><div class="eyebrow">Payment safety intelligence</div><h1>Pause. Verify.<br>Then pay with confidence.</h1><p>Check suspicious payment messages and links before you act. PayShield explains the warning signs so people can make safer payment decisions.</p></div><div class="tag">Built for the PayPal Hackathon</div></section>
 <div class="layout"><section class="card"><h2>Analyze a payment request</h2><p class="sub">Paste a message, URL, invoice note or payment instruction. Avoid entering passwords, OTPs or full card details.</p>
 <label class="fieldlabel" for="scanInput">MESSAGE OR LINK TO CHECK</label><textarea id="scanInput" placeholder="Example: Your PayPal account is locked. Verify now at http://paypal-account-help.example and pay a ₹499 release fee..."></textarea>
 <div class="row" style="margin-top:11px"><button class="btn primary" id="scanBtn">Analyze risk <span aria-hidden="true">→</span></button><button class="btn secondary" id="clearBtn" type="button">Clear</button></div>
@@ -178,6 +199,7 @@ if(PAYPAL_CLIENT_ID){const s=document.createElement('script');s.src='https://www
 
   <div id="urlResult" style="margin-top:18px;"></div>
 </section>
+ </main>
 
 <script>
 function inspectPayShieldURL() {
@@ -323,5 +345,145 @@ function downloadURLReport() {
   pdf.save("PayShield-URL-Risk-Report.pdf");
 }
 </script>
+ 
+<script>
+const payShieldTranslations = {
+  en: {
+    language: "Language:",
+    status: "● DEMO PROTOTYPE · LOCAL ANALYSIS",
+    eyebrow: "Payment safety intelligence",
+    heading: "Pause. Verify.<br>Then pay with confidence.",
+    intro: "Check suspicious payment messages and links before you act. PayShield explains the warning signs so people can make safer payment decisions.",
+    analyzeTitle: "Analyze a payment request",
+    analyzeSub: "Paste a message, URL, invoice note or payment instruction. Avoid entering passwords, OTPs or full card details.",
+    messageLabel: "MESSAGE OR LINK TO CHECK",
+    placeholder: "Paste a suspicious payment message or website link here...",
+    analyze: "Analyze risk →",
+    clear: "Clear",
+    protection: "Protection overview",
+    checkout: "PayPal checkout demo",
+    recent: "Recent checks",
+    inspect: "Inspect URL",
+    download: "Download PDF Report"
+  },
+  hi: {
+    language: "भाषा:",
+    status: "● डेमो प्रोटोटाइप · स्थानीय विश्लेषण",
+    eyebrow: "भुगतान सुरक्षा जानकारी",
+    heading: "रुकें। जाँचें।<br>फिर भरोसे के साथ भुगतान करें।",
+    intro: "भुगतान संदेशों और लिंक की जाँच करें। PayShield आपको चेतावनी के संकेत समझाता है।",
+    analyzeTitle: "भुगतान अनुरोध की जाँच करें",
+    analyzeSub: "संदेश, URL या भुगतान निर्देश यहाँ डालें। पासवर्ड, OTP या कार्ड की पूरी जानकारी न डालें।",
+    messageLabel: "जाँचने के लिए संदेश या लिंक",
+    placeholder: "संदिग्ध भुगतान संदेश या वेबसाइट लिंक यहाँ डालें...",
+    analyze: "जोखिम जाँचें →",
+    clear: "साफ़ करें",
+    protection: "सुरक्षा विवरण",
+    checkout: "PayPal भुगतान डेमो",
+    recent: "हाल की जाँच",
+    inspect: "URL जाँचें",
+    download: "PDF रिपोर्ट डाउनलोड करें"
+  },
+  ta: {
+    language: "மொழி:",
+    status: "● டெமோ முன்மாதிரி · உள்ளூர் பகுப்பாய்வு",
+    eyebrow: "பணம் செலுத்தும் பாதுகாப்பு",
+    heading: "நிறுத்துங்கள். சரிபாருங்கள்.<br>நம்பிக்கையுடன் பணம் செலுத்துங்கள்.",
+    intro: "சந்தேகமான பணப்பரிவர்த்தனை செய்திகளையும் இணைப்புகளையும் சரிபாருங்கள். எச்சரிக்கை அறிகுறிகளை PayShield விளக்குகிறது.",
+    analyzeTitle: "பணம் செலுத்தும் கோரிக்கையைச் சரிபார்க்கவும்",
+    analyzeSub: "செய்தி, URL அல்லது பணப்பரிவர்த்தனை வழிமுறையை உள்ளிடவும். கடவுச்சொல், OTP அல்லது முழு அட்டை விவரங்களை உள்ளிட வேண்டாம்.",
+    messageLabel: "சரிபார்க்க வேண்டிய செய்தி அல்லது இணைப்பு",
+    placeholder: "சந்தேகமான செய்தி அல்லது இணையதள இணைப்பை இங்கே உள்ளிடவும்...",
+    analyze: "ஆபத்தைச் சரிபார்க்கவும் →",
+    clear: "அழிக்கவும்",
+    protection: "பாதுகாப்பு விவரங்கள்",
+    checkout: "PayPal கட்டண டெமோ",
+    recent: "சமீபத்திய சரிபார்ப்புகள்",
+    inspect: "URL சரிபார்க்கவும்",
+    download: "PDF அறிக்கையைப் பதிவிறக்கவும்"
+  },
+  te: {
+    language: "భాష:",
+    status: "● డెమో నమూనా · స్థానిక విశ్లేషణ",
+    eyebrow: "చెల్లింపు భద్రత సమాచారం",
+    heading: "ఆగండి. తనిఖీ చేయండి.<br>తర్వాత నమ్మకంగా చెల్లించండి.",
+    intro: "అనుమానాస్పద చెల్లింపు సందేశాలు మరియు లింక్‌లను తనిఖీ చేయండి. హెచ్చరిక సంకేతాలను PayShield వివరిస్తుంది.",
+    analyzeTitle: "చెల్లింపు అభ్యర్థనను విశ్లేషించండి",
+    analyzeSub: "సందేశం, URL లేదా చెల్లింపు సూచనను నమోదు చేయండి. పాస్‌వర్డ్‌లు, OTPలు లేదా పూర్తి కార్డ్ వివరాలను నమోదు చేయవద్దు.",
+    messageLabel: "తనిఖీ చేయాల్సిన సందేశం లేదా లింక్",
+    placeholder: "అనుమానాస్పద సందేశం లేదా వెబ్‌సైట్ లింక్‌ను ఇక్కడ నమోదు చేయండి...",
+    analyze: "ప్రమాదాన్ని తనిఖీ చేయండి →",
+    clear: "తొలగించు",
+    protection: "రక్షణ వివరాలు",
+    checkout: "PayPal చెల్లింపు డెమో",
+    recent: "ఇటీవలి తనిఖీలు",
+    inspect: "URL తనిఖీ చేయండి",
+    download: "PDF నివేదికను డౌన్‌లోడ్ చేయండి"
+  },
+  kn: {
+    language: "ಭಾಷೆ:",
+    status: "● ಡೆಮೊ ಮಾದರಿ · ಸ್ಥಳೀಯ ವಿಶ್ಲೇಷಣೆ",
+    eyebrow: "ಪಾವತಿ ಸುರಕ್ಷತಾ ಮಾಹಿತಿ",
+    heading: "ನಿಲ್ಲಿಸಿ. ಪರಿಶೀಲಿಸಿ.<br>ನಂತರ ವಿಶ್ವಾಸದಿಂದ ಪಾವತಿಸಿ.",
+    intro: "ಅನುಮಾನಾಸ್ಪದ ಪಾವತಿ ಸಂದೇಶಗಳು ಮತ್ತು ಲಿಂಕ್‌ಗಳನ್ನು ಪರಿಶೀಲಿಸಿ. PayShield ಎಚ್ಚರಿಕೆಯ ಸೂಚನೆಗಳನ್ನು ವಿವರಿಸುತ್ತದೆ.",
+    analyzeTitle: "ಪಾವತಿ ವಿನಂತಿಯನ್ನು ವಿಶ್ಲೇಷಿಸಿ",
+    analyzeSub: "ಸಂದೇಶ, URL ಅಥವಾ ಪಾವತಿ ಸೂಚನೆಯನ್ನು ನಮೂದಿಸಿ. ಪಾಸ್‌ವರ್ಡ್, OTP ಅಥವಾ ಸಂಪೂರ್ಣ ಕಾರ್ಡ್ ವಿವರಗಳನ್ನು ನಮೂದಿಸಬೇಡಿ.",
+    messageLabel: "ಪರಿಶೀಲಿಸಬೇಕಾದ ಸಂದೇಶ ಅಥವಾ ಲಿಂಕ್",
+    placeholder: "ಅನುಮಾನಾಸ್ಪದ ಸಂದೇಶ ಅಥವಾ ವೆಬ್‌ಸೈಟ್ ಲಿಂಕ್ ಅನ್ನು ಇಲ್ಲಿ ನಮೂದಿಸಿ...",
+    analyze: "ಅಪಾಯ ಪರಿಶೀಲಿಸಿ →",
+    clear: "ಅಳಿಸಿ",
+    protection: "ರಕ್ಷಣೆಯ ವಿವರಗಳು",
+    checkout: "PayPal ಪಾವತಿ ಡೆಮೊ",
+    recent: "ಇತ್ತೀಚಿನ ಪರಿಶೀಲನೆಗಳು",
+    inspect: "URL ಪರಿಶೀಲಿಸಿ",
+    download: "PDF ವರದಿಯನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ"
+  }
+};
+
+function applyPayShieldLanguage(lang) {
+  const t = payShieldTranslations[lang] || payShieldTranslations.en;
+  const setText = (selector, value) => {
+    const element = document.querySelector(selector);
+    if (element) element.textContent = value;
+  };
+
+  document.documentElement.lang = lang;
+
+  setText(".language-selector label", t.language);
+  setText(".status", t.status);
+  setText(".hero .eyebrow", t.eyebrow);
+
+  const heading = document.querySelector(".hero h1");
+  if (heading) heading.innerHTML = t.heading;
+
+  setText(".hero p", t.intro);
+  setText(".layout > section.card h2", t.analyzeTitle);
+  setText(".layout > section.card > .sub", t.analyzeSub);
+  setText('label[for="scanInput"]', t.messageLabel);
+
+  const input = document.getElementById("scanInput");
+  if (input) input.placeholder = t.placeholder;
+
+  const analyzeButton = document.getElementById("scanBtn");
+  if (analyzeButton) analyzeButton.textContent = t.analyze;
+
+  setText("#clearBtn", t.clear);
+
+  const cards = document.querySelectorAll(".side .card");
+  if (cards[0]) setText(".side .card:nth-child(1) h2", t.protection);
+  if (cards[1]) setText(".side .card:nth-child(2) h2", t.checkout);
+  if (cards[2]) setText(".side .card:nth-child(3) h2", t.recent);
+
+  setText("#urlInspector button[onclick='inspectPayShieldURL()']", t.inspect);
+  setText("#urlInspector button[onclick='downloadURLReport()']", t.download);
+}
+
+document.getElementById("languageSelect").addEventListener("change", function() {
+  applyPayShieldLanguage(this.value);
+});
+
+applyPayShieldLanguage("en");
+</script>
+
 </body>
 </html>
