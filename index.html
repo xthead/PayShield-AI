@@ -396,6 +396,36 @@ function inspectPayShieldURL() {
 
   const host = url.hostname.toLowerCase();
   const warnings = [];
+ // Detect possible brand impersonation
+const brandChecks = [
+  {
+    name: "PayPal",
+    pattern: /paypa[1l]/i,
+    official: /(^|\.)paypal\.com$/i
+  },
+  {
+    name: "Amazon",
+    pattern: /amaz[o0]n/i,
+    official: /(^|\.)amazon\.com$/i
+  },
+  {
+    name: "Google",
+    pattern: /g[o0]{2}gle/i,
+    official: /(^|\.)google\.com$/i
+  }
+];
+
+brandChecks.forEach(brand => {
+  if (
+    brand.pattern.test(host) &&
+    !brand.official.test(host)
+  ) {
+    warnings.push(
+      "Possible " + brand.name +
+      " brand impersonation detected."
+    );
+  }
+});
 
   if (url.protocol !== "https:") {
     warnings.push("Website does not use HTTPS.");
