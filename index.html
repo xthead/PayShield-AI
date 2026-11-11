@@ -87,6 +87,23 @@
 <section class="card"><h2>PayPal checkout demo</h2><p class="sub">A separate checkout flow — only enable it after configuring a PayPal Sandbox app.</p><div class="paybox"><label class="fieldlabel" for="amount" style="margin-top:0">TEST PAYMENT AMOUNT (USD)</label><input id="amount" type="number" min="1" max="500" step="0.01" value="5.00"><p>Checkout stays locked until you run an analysis and review the result. A low heuristic score is not a guarantee of safety.</p><button class="btn secondary" id="payBtn" disabled>Analyze first to unlock demo checkout</button><div id="paypalButtons" style="margin-top:12px"></div><div class="notice" id="payNotice">PayPal SDK is not configured. Add your Sandbox client ID in the setup section of this file to test checkout. Never put a secret key in browser code.</div></div></section>
 <section class="card"><h2>Recent checks</h2><p class="sub">Only this browser session. Nothing is sent to a server.</p><div class="activity" id="activity"><div class="sub">No checks yet. Try one of the examples.</div></div></section></aside></div>
 <footer class="footer">PayShield is an independent hackathon prototype, not an official PayPal product or security service. Do not rely on this demo to authorize real payments.</footer>
+ <section class="card" id="aiAssistant">
+  <h2>🤖 PayShield AI Safety Assistant</h2>
+  <p>Ask AI to help identify suspicious messages, links, and payment requests.</p>
+
+  <textarea
+    id="assistantMessage"
+    placeholder="Paste a suspicious message here..."
+    rows="4"
+    style="width:100%;padding:12px;border-radius:10px;"
+  ></textarea>
+
+  <button onclick="askPayShieldAI()">
+    Ask PayShield AI
+  </button>
+
+  <div id="assistantResult" aria-live="polite"></div>
+</section>
 </main>
 <script>
 /* PAYPAL SANDBOX SETUP:
@@ -98,6 +115,38 @@
 const PAYPAL_CLIENT_ID ='AdoVwIeWmUQEuPbl-zpUyQd4Mvrzkxc_AMsylDqP-uYy80YuATnbGGDqZawMU0z8olSWy2gWeB6gerXI';''; // Configure a Sandbox client ID to enable PayPal buttons.
 const BACKEND_URL = 
 'https://payshield-ai-paypal-backend.onrender.com';
+ async function askPayShieldAI() {
+  const message = document.getElementById("assistantMessage").value.trim();
+  const result = document.getElementById("assistantResult");
+
+  if (!message) {
+    result.textContent = "Please enter a message first.";
+    return;
+  }
+
+  result.textContent = "🤖 PayShield AI is analyzing...";
+
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/assistant`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ message })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "AI request failed.");
+    }
+
+    result.textContent = data.answer || "No response received.";
+
+  } catch (error) {
+    result.textContent = "Error: " + error.message;
+  }
+}
 const $ = id => document.getElementById(id);
 let stats={checks:0,flagged:0,reviewed:0}, lastAssessment=null, recent=[];
 function assess(raw){
