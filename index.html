@@ -74,7 +74,42 @@ function assess(raw){
  if(!findings.length)findings.push({points:0,title:'No obvious warning signs detected',detail:'This prototype did not find its configured risk patterns. That does not establish that the sender, link or payment request is legitimate.'});
  return {score,band,findings};
 }
-function renderAssessment(a){lastAssessment=a;const level=a.score>=60?'high':a.score>=30?'medium':'low';$('score').textContent=a.score+'/100';$('scoreCaption').textContent=a.band+' · heuristic score';$('level').textContent=a.band;$('level').className='level '+level;$('meterFill').style.width=a.score+'%';$('meterFill').style.background=a.score>=60?'var(--red)':a.score>=30?'var(--amber)':'var(--green)';$('signals').innerHTML=a.findings.map(f=>`<div class="signal"><span class="mark">${f.points>=25?'⚠':'•'}</span><div><b>${escapeHtml(f.title)}</b><br>${escapeHtml(f.detail)}</div></div>`).join('');$('result').classList.add('show');$('payBtn').disabled=false;$('payBtn').textContent='Show PayPal demo checkout';$('payNotice').textContent='Analysis completed. This prototype cannot certify a transaction as safe. Use Sandbox only; real payment authorization must happen on a trusted server.';}
+
+function renderAssessment(a) {
+  lastAssessment = a;
+
+  const level = a.score >= 60 ? 'high' : a.score >= 30 ? 'medium' : 'low';
+
+  $('score').textContent = a.score + '/100';
+  $('scoreCaption').textContent = a.band + ' · heuristic score';
+  $('level').textContent = a.band;
+  $('level').className = 'level ' + level;
+
+  $('meterFill').style.width = a.score + '%';
+  $('meterFill').style.background =
+    a.score >= 60 ? 'var(--red)' :
+    a.score >= 30 ? 'var(--amber)' : 'var(--green)';
+
+  $('signals').innerHTML = a.findings.map(f => {
+    const translated = translateRiskFinding(f);
+
+    return `<div class="signal">
+      <span class="mark">${f.points >= 25 ? '⚠' : '•'}</span>
+      <div>
+        <b>${escapeHtml(translated.title)}</b><br>
+        ${escapeHtml(translated.detail)}
+      </div>
+    </div>`;
+  }).join('');
+
+  $('result').classList.add('show');
+  $('payBtn').disabled = false;
+  $('payBtn').textContent = 'Show PayPal demo checkout';
+
+  $('payNotice').textContent =
+    'Analysis completed. This prototype cannot certify a transaction as safe. Use Sandbox only; real payment authorization must happen on a trusted server.';
+}
+
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function updateStats(a){stats.checks++;if(a.score>=60)stats.flagged++;else if(a.score>=30)stats.reviewed++;$('checks').textContent=stats.checks;$('flagged').textContent=stats.flagged;$('reviewed').textContent=stats.reviewed;}
 function addRecent(a){recent.unshift({band:a.band,score:a.score,time:new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})});recent=recent.slice(0,4);$('activity').innerHTML=recent.map(x=>`<div class="activityitem"><div><b>${x.band}</b><small>Risk score ${x.score}/100 · ${x.time}</small></div><span class="pill ${x.score>=60?'danger':x.score>=30?'warn':'safe'}">${x.score>=60?'FLAGGED':x.score>=30?'REVIEW':'LOW'}</span></div>`).join('');}
@@ -483,7 +518,70 @@ document.getElementById("languageSelect").addEventListener("change", function() 
 });
 
 applyPayShieldLanguage("en");
-</script>
+ 
+function translateRiskFinding(f) {
+  const lang = document.getElementById("languageSelect").value;
 
+  const translations = {
+    hi: {
+      "Possible brand impersonation": "ब्रांड की नकली पहचान",
+      "Pressure or urgency language": "जल्दबाजी का दबाव",
+      "Sensitive information requested": "गोपनीय जानकारी मांगी गई",
+      "Unexpected prize claim": "अचानक इनाम का दावा",
+      "Upfront fee request": "पहले शुल्क देने का अनुरोध",
+      "Hard-to-reverse payment method": "वापस पाना मुश्किल भुगतान तरीका",
+      "Non-encrypted link": "असुरक्षित HTTP लिंक",
+      "Shortened link": "छोटा किया गया लिंक",
+      "Look-alike PayPal domain": "नकली PayPal जैसा डोमेन",
+      "No obvious warning signs detected": "कोई स्पष्ट चेतावनी नहीं मिली"
+    },
+    ta: {
+      "Possible brand impersonation": "பிராண்ட் போலியாக நடிப்பது",
+      "Pressure or urgency language": "அவசரப்படுத்தும் மொழி",
+      "Sensitive information requested": "ரகசிய தகவல் கோரப்படுகிறது",
+      "Unexpected prize claim": "எதிர்பாராத பரிசு அறிவிப்பு",
+      "Upfront fee request": "முன்பணம் கோரிக்கை",
+      "Hard-to-reverse payment method": "திரும்பப் பெற கடினமான கட்டண முறை",
+      "Non-encrypted link": "பாதுகாப்பற்ற HTTP இணைப்பு",
+      "Shortened link": "சுருக்கப்பட்ட இணைப்பு",
+      "Look-alike PayPal domain": "போலி PayPal டொமைன்",
+      "No obvious warning signs detected": "தெளிவான எச்சரிக்கை எதுவும் இல்லை"
+    },
+    te: {
+      "Possible brand impersonation": "బ్రాండ్ పేరుతో మోసం చేసే అవకాశం",
+      "Pressure or urgency language": "తొందరపెట్టే సందేశం",
+      "Sensitive information requested": "రహస్య సమాచారం అడుగుతున్నారు",
+      "Unexpected prize claim": "అనుకోని బహుమతి ప్రకటన",
+      "Upfront fee request": "ముందస్తు రుసుము అభ్యర్థన",
+      "Hard-to-reverse payment method": "తిరిగి పొందడం కష్టమైన చెల్లింపు విధానం",
+      "Non-encrypted link": "సురక్షితం కాని HTTP లింక్",
+      "Shortened link": "చిన్నదిగా మార్చిన లింక్",
+      "Look-alike PayPal domain": "నకిలీ PayPal డొమైన్",
+      "No obvious warning signs detected": "స్పష్టమైన హెచ్చరికలు కనిపించలేదు"
+    },
+    kn: {
+      "Possible brand impersonation": "ಬ್ರ್ಯಾಂಡ್‌ನ ನಕಲಿ ಗುರುತು",
+      "Pressure or urgency language": "ತುರ್ತು ಒತ್ತಡದ ಸಂದೇಶ",
+      "Sensitive information requested": "ರಹಸ್ಯ ಮಾಹಿತಿ ಕೇಳಲಾಗಿದೆ",
+      "Unexpected prize claim": "ಅನಿರೀಕ್ಷಿತ ಬಹುಮಾನದ ಹೇಳಿಕೆ",
+      "Upfront fee request": "ಮುಂಗಡ ಶುಲ್ಕದ ವಿನಂತಿ",
+      "Hard-to-reverse payment method": "ಹಿಂತಿರುಗಿಸಲು ಕಷ್ಟವಾದ ಪಾವತಿ ವಿಧಾನ",
+      "Non-encrypted link": "ಸುರಕ್ಷಿತವಲ್ಲದ HTTP ಲಿಂಕ್",
+      "Shortened link": "ಸಂಕ್ಷಿಪ್ತ ಲಿಂಕ್",
+      "Look-alike PayPal domain": "ನಕಲಿ PayPal ಡೊಮೇನ್",
+      "No obvious warning signs detected": "ಸ್ಪಷ್ಟ ಎಚ್ಚರಿಕೆಗಳು ಕಂಡುಬಂದಿಲ್ಲ"
+    }
+  };
+
+  const translatedTitle =
+    translations[lang]?.[f.title] || f.title;
+
+  return {
+    title: translatedTitle,
+    detail: f.detail
+  };
+}
+
+</script>
 </body>
 </html>
