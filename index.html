@@ -270,6 +270,58 @@ window.payShieldURLReport = {
     </div>
   `;
  }
+ 
+function downloadURLReport() {
+  const report = window.payShieldURLReport;
+
+  if (!report) {
+    alert("Please inspect a URL first.");
+    return;
+  }
+
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert("PDF library not loaded. Please refresh the page.");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+
+  pdf.setFontSize(20);
+  pdf.text("PayShield AI - URL Risk Report", 20, 20);
+
+  pdf.setFontSize(12);
+  pdf.text("Risk Level: " + report.status, 20, 35);
+  pdf.text("Risk Score: " + report.risk + "/100", 20, 45);
+  pdf.text("Domain: " + report.host, 20, 55);
+  pdf.text("Checked At: " + report.checkedAt, 20, 65);
+
+  pdf.text("Security Warnings:", 20, 80);
+
+  const warnings = report.warnings.length
+    ? report.warnings.map(w => "- " + w)
+    : ["No basic URL warning patterns detected."];
+
+  let y = 90;
+
+  warnings.forEach(warning => {
+    const lines = pdf.splitTextToSize(warning, 170);
+    if (y + lines.length * 7 > 275) {
+      pdf.addPage();
+      y = 20;
+    }
+    pdf.text(lines, 20, y);
+    y += lines.length * 7 + 3;
+  });
+
+  pdf.setFontSize(9);
+  pdf.text(
+    "This is a basic heuristic check, not a guarantee that a website is safe.",
+    20, 285
+  );
+
+  pdf.save("PayShield-URL-Risk-Report.pdf");
+}
 </script>
 </body>
 </html>
