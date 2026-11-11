@@ -165,7 +165,20 @@ function assess(raw){
  // Signals are deliberately transparent heuristics, not a trained ML model.
  if(/paypa[l1][-.]?(?:secure|support|verify|account)|paypa1|paypaI/i.test(text)) add(35,'Possible brand impersonation','The text contains a PayPal-like spelling or security-themed domain. Open PayPal directly instead of following the message link.');
  if(/\b(urgent|immediately|within\s+\d+\s*(?:minutes?|hours?)|act now|last warning|account (?:blocked|suspended|locked))\b/i.test(text)) add(20,'Pressure or urgency language','Scam messages often rush people into acting before they verify a request.');
- if(/\b(password|passcode|otp|one[- ]time code|cvv|card number|bank login|login details)\b/i.test(text) &&!/\b(no|not|without|don't|do not|doesn't|does not|isn't|is not)\b.{0,50}\b(password|passcode|otp|one[- ]time code|cvv|card number|bank login|login details)\b|\b(password|passcode|otp|one[- ]time code|cvv|card number|bank login|login details)\b.{0,30}\b(not requested|not needed|not required)\b/i.test(text)) add(35,'Sensitive information requested','Never share passwords, one-time codes, CVV or full payment credentials in response to a message.');
+const sensitivePattern = /\b(password|passcode|otp|one[- ]time code|cvv|card number|bank login|login details)\b/i;
+
+const deniedPattern = /\b(no|not|without|don't|do not|doesn't|does not|isn't|is not)\b.{0,80}\b(password|passcode|otp|one[- ]time code|cvv|card number|bank login|login details)\b/i;
+
+if (
+  sensitivePattern.test(text) &&
+  !deniedPattern.test(text)
+) {
+  add(
+    35,
+    'Sensitive information requested',
+    'Never share passwords, one-time codes, CVV or full payment credentials in response to a message.'
+  );
+}
  if(/\b(lottery|you won|winner|prize|claim your reward|giveaway)\b/i.test(text)) add(18,'Unexpected prize claim','An unexpected prize combined with a payment request is a common advance-fee warning sign.');
  if(/\b(processing fee|release fee|claim fee|customs fee|pay (?:a )?fee|advance fee)\b/i.test(text)) add(25,'Upfront fee request','Treat requests to pay money to unlock a prize, refund or account as suspicious.');
  if(/\b(gift ?cards?|crypto(?:currency)?|wire transfer|friends and family)\b/i.test(text)) add(18,'Hard-to-reverse payment method','The message mentions a payment method that may offer limited recovery options. Verify the recipient independently.');
